@@ -1,0 +1,97 @@
+\documentclass[utf8]{ctexart}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\title{\vspace*{-1cm}Algorithm Design and Analysis Homework 1}
+\author{Tianyi Guan 2400017423}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Problem 1.2} 
+    \begin{enumerate}[label= (\arabic*)]
+        \item 最坏情况下，总的比较次数是 $\displaystyle \sum_{i=1}^{n}(n-i)=\dfrac{n(n-1)}{2}$.
+        \item 最坏情况下，总的交换次数是 $\displaystyle \sum_{i=1}^{n-1}(n-i)=\dfrac{n(n-1)}{2}$. 
+        当输入是逆序（这里即递减顺序）时发生。
+    \end{enumerate}
+    \item \textbf{Problem 1.6}\\
+        这里求解的是一个多项式求和问题，即计算$P(x)=\sum_{i=0}^{n}a_ix^i$，输入的x作为多项式的变量的一个赋值，输入的数组作为多项式的系数，输出的y作为求和结果。
+        乘法运算次数是 $\sum_{i=1}^{n}2=2n$次，加法运算次数是$\sum_{i=1}^{n}1=n$次。
+    \item \textbf{Problem 1.8}
+        \[ A(n)\approx \sum_{i=1}^{n}\frac{1}{2^i}i = 2-\frac{2+n}{2^n}\]当$n\to\infty$时，$\frac{2+n}{2^n}=0$，故$A(n)\approx2$
+    \item \textbf{Problem 1.12}\\
+        由定义，考虑\[\begin{aligned}
+            \lim_{n \to \infty} \frac{\log_{b} n}{n^a}&=\frac{1}{\ln b}\lim_{n\to\infty}\frac{\ln n}{n^a}\\
+            &=\frac{1}{\ln b}\lim_{n\to\infty}\frac{\frac{1}{n}}{an^{a-1}}\\
+            &=\frac{1}{\ln b}\lim_{n\to\infty}\frac{1}{an^{a}}\\         
+        \end{aligned}\]
+        当$a>0,b>1$时，$\lim\limits_{n\to\infty}n^{a}=+\infty\text{且}\ln b>0$。因此,原式$=0$。故得证。
+    \item \textbf{Problem 1.15}
+    \begin{enumerate}[label= (\arabic*)]
+        \item[(2)] 由定义，考虑 \[ \begin{aligned}
+        \lim_{n\to\infty}\frac{f(n)}{g(n)}&=\lim_{n\to\infty}\frac{n+2\sqrt{n}}{n^2}\\
+        &=\lim_{n\to\infty}\frac{(n+2\sqrt{n})'}{(n^2)'}\\
+        &=\lim_{n\to\infty}\frac{1+\frac{1}{\sqrt{n}}}{2n}\\
+        &=0
+        \end{aligned}\]
+        因此，有$f(n)=O(g(n))$。
+        \item[(4)]由定义，考虑\[ \begin{aligned}
+        \lim_{n\to\infty}\frac{f(n)}{g(n)}&=\lim_{n\to\infty}\frac{2\log^2n}{\log{n}+1}\\
+        &=\lim_{n\to\infty}\frac{4\log{n}\cdot\frac{1}{n}}{\frac{1}{n}}\\
+        &=\lim_{n\to\infty}4\log{n}\\
+        &=+\infty
+        \end{aligned}\]
+        因此，有$g(n)=O(f(n))$。
+    \end{enumerate}
+    \item \textbf{Problem 1.18}\\
+        已知$\displaystyle\sum_{k=1}^{n}\frac{1}{k}=\Theta(\log{n})$，
+        $\log(n!)=\Theta(n\log n)$。
+        故从高到低依次为：\[
+        \begin{aligned}
+            &n!>2^{2n}>n\cdot2^n>(\log{n})^{\log{n}}\sim n^{\log{\log{n}}}\\
+            &>n^3>2^{\log\sqrt{n}}>2^{\sqrt{2\log{n}}}\\
+            &>\log(n!)\sim n\log{n}>\log{10^n}>n\\
+            &>\log n\sim\sum_{k=1}^{n}\frac{1}{k}>\log{\log n} 
+        \end{aligned}\]
+
+    \item \textbf{Problem 1.19}\begin{enumerate}[label= (\arabic*)]
+        \item [(2)] 不妨设$n=3^k$，那么原方程变为\[\begin{cases}
+            T(3^k)=9T(3^{k-1})+3^k\\
+            T(1)=1
+        \end{cases}\]
+        则有\[\begin{aligned}
+            T(3^k)&=9(9T(3^{k-2})+3^{k-1})+3^k\\
+            &\,\,\vdots\\
+            &=3^{2k}T(1)+\sum_{i=k}^{2k-1}3^i\\
+            &=3^{2k}+\frac{3^{2k}-3^{k}}{2}\\
+            &=\Theta(n^2)
+        \end{aligned}\]
+        \item [(4)] \[\begin{aligned}
+            T(n)&=T(n-1)+\log{3^n}\\
+            &=T(n-2)+\log{3^{n-1}}+\log{3^n}\\
+            &\,\,\vdots\\
+            &=T(1)+\sum_{i=2}^{n}\log{3^i}\\
+            &=1+\log3\sum_{i=2}^{n}i\\
+            &=1+\frac{\log3(n+2)(n-1)}{2}\\
+            &=\Theta(n^2)
+        \end{aligned}\]
+        \item [(6)]由主定理，$a=2$，$b=2$，$f(n)=n^2\log{n}$。考虑主定理成立的条件：
+        \[\begin{aligned}
+            n^{\log_2{2}}&=n\\
+            \text{取}\epsilon=0.5,\text{有：}\\
+            f(n)&=\Omega(n^{1.5})\\
+            \text{接下来考虑}c=0.5\text{，}n\text{充分大，有：}\\
+            2f(n/2)&=2\cdot \dfrac{n^2}{4}\log{\frac{n}{2}}&\le\frac{n^2\log{n}}{2}\\
+            \text{故}T(n)&=\Theta(n^2\log{n})
+        \end{aligned}\]
+    \end{enumerate}
+    \item \textbf{Problem 1.21}\\
+        算法A的最坏情况下，有$T_a(n)=5T_a(n/2)+c_an$。\\
+        算法B的最坏情况下，有$T_b(n)=2T_b(n-1)+c_b$。\\
+        算法C的最坏情况下，有$T_c(n)=9T_c(n/3)+c_cn^3$。\\
+        求解三个递推方程，有$T_a(n)=\Theta(n^{\log_2{5}})$，$T_b(n)=\Theta(2^{n-1})$，$T_c(n)=\Theta(n^3)$。故最坏情况下最佳的算法是A。
+\end{enumerate}
+
+\end{document}
