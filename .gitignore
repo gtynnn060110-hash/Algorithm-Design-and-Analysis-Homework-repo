@@ -1,0 +1,62 @@
+# =========================
+# LaTeX 编译生成的中间文件
+# =========================
+*.aux
+*.bbl
+*.blg
+*.brf
+*.bcf
+*.cb
+*.cb2
+*.dtx
+*.dvi
+*.fdb_latexmk
+*.fls
+*.fmt
+*.idx
+*.ilg
+*.ind
+*.ins
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.pdfsync
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# 如果你不想把最终的 PDF 也传到云端，可以取消下面这行的注释
+# *.pdf
+算法设计与分析（第2版）【国家级规划教材】 (屈婉玲 刘田 张立昂 王捍贫) (z-library.sk, 1lib.sk, z-lib.sk).pdf
+
+# =========================
+# VS Code / 编辑器相关
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.history/
+*.swp
+
+# =========================
+# Python (写算法代码时备用)
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+.pytest_cache/
+
+# =========================
+# 操作系统生成文件 (Ubuntu/macOS/Windows)
+# =========================
+.DS_Store
+Thumbs.db
+*~
