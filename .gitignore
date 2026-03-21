@@ -28,6 +28,7 @@
 *.synctex.gz
 *.toc
 *.vrb
+*.xdv
 
 # 如果你不想把最终的 PDF 也传到云端，可以取消下面这行的注释
 # *.pdf

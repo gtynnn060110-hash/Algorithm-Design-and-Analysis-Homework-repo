@@ -1,4 +1,4 @@
-\documentclass[utf8]{ctexart}
+\documentclass{ctexart}
 \usepackage{enumitem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{proof}{Proof}
@@ -65,8 +65,9 @@
                 \For{$i\leftarrow 0$ \KwTo $n-1$}{
                     \If{$count==0$}{
                         $candidate\leftarrow A[i]$\;
+                        $count\leftarrow 1$
                     }
-                    \Else{\If{$x==candidate$}{$count\leftarrow count+1$\;}
+                    \Else{\If{$A[i]==candidate$}{$count\leftarrow count+1$\;}
                     \Else{$count\leftarrow count-1$\;}
                 }
                 }
@@ -81,11 +82,12 @@
             \caption{找到给定两个集合的交集}
             \KwIn{Two sets of integers $A$ and $B$}
             \KwOut{Set of integers C}
+            Initialize empty set $C$\;
             Build a BST on B, denoted as Tree\tcp*{$O(m\log m)$}
             \tcp{遍历集合$A$，复杂度$O(n\log m)$}
             \For {$i\leftarrow 0$ \KwTo $n-1$}{
                 \If{Found $A[i]$ in Tree}{
-                    $C\leftarrow C\cap \{A[i]\}$\;
+                    $C\leftarrow C\cup \{A[i]\}$\;
                 }
             }
             \Return $C$\;
@@ -158,10 +160,163 @@
                 $I[i] \leftarrow Closest[i].id$\;
             }
             \Return $I$\;
-\end{algorithm}
-    \item \textbf{Problem 3.3}
-    \item \textbf{Problem 3.8}
-    \item \textbf{Problem 3.10}
-    \item \textbf{Problem 3.17}
+        \end{algorithm}
+    \item \textbf{Problem 3.3}\\
+        直接的思路是构建一个二维数组$dp[i][j]$表示前i个货柜，占用空间不超过j的最佳收益，
+        进而有递推式\[ \begin{cases}
+            dp[0][0]=0,i=0\\
+            dp[i][j]=dp[i-1][j],0<i\le{n},0<j<l_i\\
+            dp[i][j]=max(dp[i-1][j-l_{i}]+v_i, dp[i-1][j]),0<i\le{n},l_i\le{j}\le{D}
+        \end{cases}\]
+        但是由于递推式第二行只用到了$dp[i-1]$行的信息，进而可以通过控制循环顺序简化空间复杂度，
+        只维护一个一维数组$dp[j]$，在i的迭代过程中实现更新。
+        有如下递推式\[\begin{cases}
+            dp[0]=0\\
+            dp[j]=dp[j],0<j<l_i\\
+            dp[j]=max(dp[j-l_i]+v_i,dp[j]), l_i\le{j}\le{D}
+        \end{cases}\]因此有如下伪代码：\\
+        \begin{algorithm}[H]
+            \SetAlgoLined
+            \caption{计算货柜最大仓储收益}
+            \KwIn{货柜数量 $n$, 库房总长度 $D$, 货柜长度数组 $l[1 \dots n]$, 货柜收益数组 $v[1 \dots n]$}
+            \KwOut{最大仓储收益}
+            
+            \tcp{初始化长度为 D+1 的状态数组，初始收益均为 0}
+            Initialize an array $dp$ of length $D+1$ with all $0$\;
+            
+            \tcp{外层循环遍历每个货柜}
+            \For{$i \leftarrow 0$ \KwTo $n-1$}{
+                \tcp{内层循环逆序遍历库房容量，保证使用直接思路中的$dp[i-1]$行的信息而非$dp[i]$}
+                \For{$j \leftarrow D$ \textbf{downto} $l[i]$}{
+                    $dp[j] \leftarrow \max(dp[j], dp[j - l[i]] + v[i])$\;
+                }
+            }    
+            \Return $dp[D]$\;
+        \end{algorithm}
+        最坏情况下时间复杂度为$O(nD)$。
+    \item \textbf{Problem 3.8}\\
+        题目显然可以转化为是否存在$A$的一个子集使得其中元素和严格等于$N/2$。显然当$N$是奇数时，
+        不可能找到这样的子集。
+        对于偶数的情形，沿用上一题的思路，可以先构建二维数组$dp[i][j]$表示从前$i$个元素中构建子集能否凑到求和为$j$。
+        自然有如下递推式：\[\begin{cases}
+            dp[i][0]=1, 0\le{i}\le{n}\\
+            dp[i][j]=dp[i-1][j],0\le{j}<a_i\\
+            dp[i][j]=dp[i-1][j-a_i] \lor dp[i-1][j], 0<i\le{n},a_i\le{j}\le{N/2}
+        \end{cases}\]
+        同样，可以考虑跟上一问同样的思路，通过在内层循环逆序遍历$j$，可以实现只用一维的$dp[j]$实现。
+        递推式如下：\[\begin{cases}
+            dp[0]=1\\
+            dp[j]=dp[j],0\le{j}<a_i\\
+            dp[j]=dp[j-a_i] \lor dp[j],a_i\le{j}\le{N/2}
+        \end{cases}\]
+        因此有如下伪代码：\\
+        \begin{algorithm}[H]
+            \SetAlgoLined
+            \caption{判断集合是否能划分为和相等的两个子集}
+            \KwIn{正整数集合 $A=\{a_1, a_2, \dots, a_n\}$，元素个数 $n$}
+            \KwOut{布尔值（\text{True} 表示可以划分，\text{False} 表示不可以）}
+            
+            $N \leftarrow \sum_{i=1}^{n} a_i$\;
+            \tcp{如果总和为奇数，显然无法平分为两个整数子集}
+            \If{$N \pmod 2 \neq 0$}{
+                \Return \text{False}\;
+            }
+            $M \leftarrow N / 2$\;
+            
+            \tcp{初始化长度为 M+1 的布尔数组，dp[0] 为 True，其余为 False}
+            Initialize boolean array $dp[0 \dots M]$ with \text{False}\;
+            $dp[0] \leftarrow \text{True}$\;
+            
+            \tcp{外层循环遍历每个元素}
+            \For{$i \leftarrow 0$ \KwTo $n-1$}{
+                \tcc{内层循环逆序遍历容量，确保每个元素只用一次，下限为 a\_i 防止越界}
+                \For{$j \leftarrow M$ \textbf{downto} $a_i$}{
+                    $dp[j] \leftarrow dp[j] \lor dp[j - a_i]$\;
+                }
+            }    
+            \Return $dp[M]$\;
+        \end{algorithm}
+        最坏情况下算法复杂度为$O(n{N})$
+    \newpage
+    \item \textbf{Problem 3.10}\\
+        思路与前两道题基本一致，只是引入一个新的下标$k$表示体积的限制就可以了。同时为了输出装填方案,需要维护一个选择数组$choice[i][j][k]$
+        因而递推式如下：\[\begin{cases}
+            dp[j][k]=0, 0\le{j}\le{W}, 0\le{k}\le{V}\\
+            dp[j][k]=dp[j][k], (0\le{j}<w_i) \lor (0\le{k}<c_i)\\
+            dp[j][k]=\max(dp[j-w_i][k-c_i]+v_i, dp[j][k]), w_i\le{j}\le{W}, c_i\le{k}\le{V}
+        \end{cases}\]
+        有如下伪代码：\\
+        \begin{algorithm}[H]
+            \caption{背包问题的二维推广版本}
+            \SetAlgoLined
+            \KwIn{重量数组 $w[0 \dots n-1]$，体积数组 $c[0 \dots n-1]$，价值数组 $v[0 \dots n-1]$}
+            \KwOut{最终选择的物品下标数组 $C$}
+            
+            Initialize $dp[W][V], choice[n][W][V]$ with all $0$\;
+            \For {$i \leftarrow 0$ \KwTo $n-1$}{
+                \For{$j \leftarrow W$ \textbf{downto} $w[i]$}{
+                    \For{$k \leftarrow V$ \textbf{downto} $c[i]$}{
+                        \If{$dp[j-w[i]][k-c[i]] + v[i] > dp[j][k]$}{
+                            $dp[j][k] \leftarrow dp[j-w[i]][k-c[i]] + v[i]$\;
+                            $choice[i][j][k] \leftarrow 1$\;
+                        }
+                    }
+                }
+            }
+            
+            $curr\_W \leftarrow W$\; 
+            $curr\_V \leftarrow V$\;
+            Initialize an empty list $C$\;
+            
+            \For{$i \leftarrow n-1$ \textbf{downto} $0$}{
+                \If{$choice[i][curr\_W][curr\_V] == 1$}{
+                    Add $i$ to $C$\;
+                    $curr\_W \leftarrow curr\_W - w[i]$\;
+                    $curr\_V \leftarrow curr\_V - c[i]$\;
+                }
+            }
+            \Return $C$\;
+        \end{algorithm}         
+    \item \textbf{Problem 3.17}\\
+        考虑从最底层向上做动态规划，$dp[i][j]$表示第$i$行第$j$个元素到最下方的最小值之和。
+        有递推式：\[\begin{cases}
+            dp[n-1][j]=a_{(n-1)j}\\
+            dp[i][j]=min(dp[i+1][j]+a_{ij},dp[i+1][j+1]+a_{ij}),0\le{i}<n-1,0\le{j}\le i
+        \end{cases}\]同样需要一个$Path$记录路径。
+        因此有如下伪代码：\\
+        \begin{algorithm}[H]
+            \SetAlgoLined
+            \caption{数字三角形最小路径和 (自底向上 DP)}
+            \KwIn{三角形行数 $n$，二维数组 $a$（$a[i][j]$ 表示第 $i$ 行第 $j$ 列的数）}
+            \KwOut{最小路径和，以及具体路径 $Path$}
+            
+            Initialize a 2D array $dp[0 \dots n-1][0 \dots n-1]$ with $0$\;
+            Initialize a 2D array $choice[0 \dots n-2][0 \dots n-2]$ with $0$\;
+            
+            \For{$j \leftarrow 0$ \KwTo $n-1$}{
+                $dp[n-1][j] \leftarrow a[n-1][j]$\;
+            }
+            
+            \For{$i \leftarrow n-2$ \textbf{downto} $0$}{
+                \For{$j \leftarrow 0$ \KwTo $i$}{
+                    \eIf{$dp[i+1][j] < dp[i+1][j+1]$}{
+                        $dp[i][j] \leftarrow dp[i+1][j] + a[i][j]$\;
+                        $choice[i][j] \leftarrow 0$\; \tcp{0 表示最优路径通向正下方的 a[i+1][j]}
+                    }{
+                        $dp[i][j] \leftarrow dp[i+1][j+1] + a[i][j]$\;
+                        $choice[i][j] \leftarrow 1$\; \tcp{1 表示最优路径通向右下方的 a[i+1][j+1]}
+                    }
+                }
+            }    
+            Initialize an empty list $Path$\;
+            Add $a[0][0]$ to $Path$\;
+            $curr\_j \leftarrow 0$\; \tcp{记录当前所在的列索引}
+            
+            \For{$i \leftarrow 0$ \KwTo $n-2$}{
+                $curr\_j \leftarrow curr\_j + choice[i][curr\_j]$\; \tcp{根据 choice 决定下一层往哪走}
+                Add $a[i+1][curr\_j]$ to $Path$\;
+            }
+            \Return $dp[0][0]$ \text{and} $Path$\;
+        \end{algorithm}
 \end{enumerate}
 \end{document}
