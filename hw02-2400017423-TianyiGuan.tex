@@ -229,7 +229,6 @@
             
             \tcp{外层循环遍历每个元素}
             \For{$i \leftarrow 0$ \KwTo $n-1$}{
-                \tcc{内层循环逆序遍历容量，确保每个元素只用一次，下限为 a\_i 防止越界}
                 \For{$j \leftarrow M$ \textbf{downto} $a_i$}{
                     $dp[j] \leftarrow dp[j] \lor dp[j - a_i]$\;
                 }
