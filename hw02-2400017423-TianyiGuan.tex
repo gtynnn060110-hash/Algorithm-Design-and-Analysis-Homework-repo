@@ -1,0 +1,167 @@
+\documentclass[utf8]{ctexart}
+\usepackage{enumitem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proof}{Proof}
+\usepackage{amsmath,amssymb}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\title{\vspace*{-1cm}Algorithm Design and Analysis Homework 2}
+\author{Tianyi Guan 2400017423}
+\date{\today}
+
+\begin{document}
+\maketitle
+\vspace{-1cm}
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Problem 2.7}
+        \begin{enumerate}[label= (\arabic*)]
+            \item \begin{algorithm}[H]
+                \SetAlgoLined
+                \KwIn{Array A of length n}
+                \KwOut{Yes if 有主元素 else No}
+                \caption{判断是否存在主元素(复杂度$O(n\log{n})$)}
+                Quicksort A\tcp*{$O(n\log{n})$}
+                \tcp{遍历前半部分,复杂度$O(n)$}
+                \For{$i \leftarrow 0$ \KwTo $\lfloor \frac{n-1}{2} \rfloor$ }{
+                    \If{$A[i]==A[i+\lceil\frac{n-1}{2}\rceil]$}{
+                        \Return Yes\;
+                    }
+                }
+                \Return No\;
+            \end{algorithm}
+            \item \begin{lemma}
+            \hfill
+            \begin{center}
+            如果有主元素，那么主元素必然是中位数。
+            \end{center}
+            \begin{proof}
+                \hfill \\
+                一个最简单的证明思路是,对于一个有序的数组,考虑存在主元素的最极端情况,即最小(或最大)的元素是主元素。那么由主元素的定义,
+                当它的出现次数大于$n/2$时,必然到达了中位数的位置。
+            \end{proof}
+            \end{lemma}
+            \begin{algorithm}[H]
+                \SetAlgoLined
+                \KwIn{Array $A$ of length $n$}
+                \KwOut{Yes if 有主元素 else No}
+                \caption{判断是否存在主元素(复杂度$O(n)$)} 
+                Initialize $times\leftarrow 0$\;
+                $Midterm\leftarrow Select (A,\frac{n}{2})$\tcp*{$O(n)$}
+                \tcp{遍历数组，找中位数出现次数，复杂度$O(n)$}
+                \For{$i \leftarrow 0$ \KwTo $n-1$}{
+                    \If{$A[i]==Midterm$}{$times\leftarrow times+1$\;}
+                }
+                \If{$times>\lfloor\frac{n}{2}\rfloor$}{\Return Yes\;}
+                \Else{\Return No\;}
+            \end{algorithm}
+            \item 一个朴素的想法是直接建立哈希表统计次数，但由于能判断相等$\ne$可哈希，故不行。\\
+            考虑如下的找candidate算法。\\
+            \begin{algorithm}[H]
+                \SetAlgoLined
+                \KwIn{Array $A$ of length $n$}
+                \KwOut{Yes if 有主元素 else No}
+                \caption{只能判等情况下是否存在主元素}
+                Initialize $candidate\leftarrow none$, $count\leftarrow 0$\;
+                \For{$i\leftarrow 0$ \KwTo $n-1$}{
+                    \If{$count==0$}{
+                        $candidate\leftarrow A[i]$\;
+                    }
+                    \Else{\If{$x==candidate$}{$count\leftarrow count+1$\;}
+                    \Else{$count\leftarrow count-1$\;}
+                }
+                }
+                Scan $A$ to calculate the times of $candidate$\, denoted as $times$\;
+                \If{$times>\lfloor\frac{n}{2}\rfloor$}{\Return Yes\;}
+                \Else{\Return No\;}
+            \end{algorithm}
+        \end{enumerate}
+    \item \textbf{Problem 2.12}\\
+        \begin{algorithm}[H]
+            \SetAlgoLined
+            \caption{找到给定两个集合的交集}
+            \KwIn{Two sets of integers $A$ and $B$}
+            \KwOut{Set of integers C}
+            Build a BST on B, denoted as Tree\tcp*{$O(m\log m)$}
+            \tcp{遍历集合$A$，复杂度$O(n\log m)$}
+            \For {$i\leftarrow 0$ \KwTo $n-1$}{
+                \If{Found $A[i]$ in Tree}{
+                    $C\leftarrow C\cap \{A[i]\}$\;
+                }
+            }
+            \Return $C$\;
+        \end{algorithm}
+    \item \textbf{Problem 2.15}
+        \begin{enumerate}[label= (\arabic*)]
+            \item 对于算法A，单次Findmax算法复杂度为$O(n)$，调用i次（其中$i\le{n^{1/2}}$），
+            总的时间复杂度是$O(n^{3/2})$。对于算法B，排序算法时间复杂度是$O(n\log{n})$，
+            输出最大i个数的时间复杂度是$O(n^{1/2})$，故算法B的时间复杂度是$O(n\log{n})$。
+            \item \begin{algorithm}[H]
+                \SetAlgoLined
+                \caption{求$S$中最大的$i$个数}
+                \KwIn{Array $S$ of length $n$, integer $i$}
+                \KwOut{Array of length $i$}
+                Initialize array $I$ of length $i$\;
+                Initialize $pivot\leftarrow Select(S,n-i+1)$\;
+                Initialize $k\leftarrow 0$, $j\leftarrow n-1$\;
+                \While{$k\le j$}{
+                    \While{$S[k]<pivot$}{
+                        $k\leftarrow k+1$\;
+                    }
+                    \While{$S[j]>pivot$}{
+                        $j\leftarrow j-1$\;
+                    }
+                    \If{$k \le j$}{
+                    $swap(S[k], S[j])$\;
+                    $k \leftarrow k+1$\;
+                    $j \leftarrow j-1$\;}
+                }
+                $I\leftarrow Sorted(S[n-i:n])$\;
+                \Return $I$\;
+            \end{algorithm}
+            这个算法的复杂度是$O(n+ilogi)$，在$i\le{n^{1/2}}$时，复杂度可以达到$O(n)$。
+        \end{enumerate}
+    \newpage
+    \item \textbf{Problem 2.18}\\
+        \begin{algorithm}[H]
+            \SetAlgoLined
+            \caption{找到距离原点最近的 $\lfloor\sqrt{n}\rfloor$ 个点}
+            \KwIn{$n$ points with coordinates $(x_1,y_1), \dots, (x_n,y_n)$}
+            \KwOut{Indices of the $\lfloor\sqrt{n}\rfloor$ nearest points, sorted by distance descending}
+            
+            $k \leftarrow \lfloor\sqrt{n}\rfloor$\;
+            
+            Initialize an array of objects $P$ of length $n$\;
+            \For{$i \leftarrow 0$ \KwTo $n-1$}{
+                $P[i].id \leftarrow i$\;
+                $P[i].dist \leftarrow x_i^2 + y_i^2$\;
+            }
+            
+            $pivot \leftarrow Select(P, k, \text{key}=dist)$\;
+            
+            $l \leftarrow 0$, $j \leftarrow n-1$\;
+            \While{$l \le j$}{
+                \While{$P[l].dist < pivot$}{
+                    $l \leftarrow l+1$\;
+                }
+                \While{$P[j].dist > pivot$}{
+                    $j \leftarrow j-1$\;
+                }
+                \If{$l \le j$}{
+                    $swap(P[l], P[j])$\;
+                    $l \leftarrow l+1$\;
+                    $j \leftarrow j-1$\;
+                }
+            }    
+            $Closest \leftarrow Sorted(P[0:k], \text{key}=dist, \text{order}=descending)$\;
+            Initialize array $I$ of length $k$\;
+            \For{$i \leftarrow 0$ \KwTo $k-1$}{
+                $I[i] \leftarrow Closest[i].id$\;
+            }
+            \Return $I$\;
+\end{algorithm}
+    \item \textbf{Problem 3.3}
+    \item \textbf{Problem 3.8}
+    \item \textbf{Problem 3.10}
+    \item \textbf{Problem 3.17}
+\end{enumerate}
+\end{document}
