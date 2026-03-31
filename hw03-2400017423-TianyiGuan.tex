@@ -1,0 +1,287 @@
+\documentclass{ctexart}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage[a4paper,margin=2cm]{geometry}
+\title{\vspace*{-1cm}Algorithm Design and Analysis Homework 3}
+\author{Tianyi Guan 2400017423}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Problem 4.3}\\
+        核心思路是从$A$到$B$依次安插基站。不妨设每个房子（$x_1,\dots, x_n$）的坐标分别就是$d_i$。采用贪心策略，在未被基站覆盖的第一个
+        房子的靠近$B$侧的$4$千米处安插基站$l_j$，安插后把坐标$\le l_j+4$的房子设置成覆盖状态，并重复这一过程直至所有房子都被覆盖。\\
+        \begin{algorithm}[H]
+            \KwIn{An array $A$ of length $n$ representing sorted house coordinates.}
+            \KwOut{Array $L=[l_1,\dots,l_k]$ representing the positions of the base stations.}
+            \caption{贪心法求解基站覆盖问题}
+            Initialize $L=\varnothing$\;
+            $i \leftarrow 1$\;
+            $k \leftarrow 0$\;
+            \While{$i \le n$}{
+                $k \leftarrow k + 1$\;
+                $l_k \leftarrow A[i] + 4$ \tcp*{在当前未覆盖房子的最右极限处建站}
+                $L \leftarrow L \cup \{l_k\}$\;
+                $limit \leftarrow l_k + 4$ \tcp*{计算该基站的最远覆盖边界}
+                
+                \While{$i \le n$ \textbf{and} $A[i] \le limit$}{
+                    $i \leftarrow i + 1$ \tcp*{跳过所有已被当前基站覆盖的房子}
+                }
+            }
+            \Return{$L$}\;
+        \end{algorithm}
+        算法正确性的证明思路：\\
+        考虑一个最优解$S$和贪心法所得到的最优解$S^*$，考虑第一个基站的位置，必然有$S^*_1\ge S_1$。（否则第一个房子不会有基站覆盖。）
+        因此，将$S_1$变成$S^*_1$，不影响最优解性质。由此进行归纳，假设替换了前$t$个基站（其中$t<k$）。对于下一个基站$S_{t+1}$，
+        考虑$S^*$的下一个基站$S^*_{t+1}$，自然有$S_{t+1}\le S^*_{t+1}$，因此同样可以替换$t+1$个基站并且使得结果不会变差。
+        因此由归纳法，可以证明任意最优解可以经过有限步（至多$k$步）变成贪心法的最优解。
+    \item \textbf{Problem 4.6}\\
+        核心思路是采用贪心策略，优先安排加工时间最短的作业。不妨设每项作业的加工时间为$t(i)$。将所有作业按照加工时间从小到大进行排序，使得$t(1) \le t(2) \le \dots \le t(n)$。然后从时刻$0$开始，依次不间断地将作业安排在机器上加工。这样可以保证耗时短的任务尽早完成，从而使其对后续所有任务造成的等待时间惩罚降到最低。\\
+        \begin{algorithm}[H]
+            \KwIn{An array $T$ of length $n$ representing the processing time of $n$ jobs.}
+            \KwOut{Array $F=[f_1,\dots,f_n]$ representing the start time of each job.}
+            \caption{贪心法求解最小平均完成时间调度问题}
+            Sort the jobs such that $T[1] \le T[2] \le \dots \le T[n]$\;
+            $F[1] \leftarrow 0$\;
+            $current\_time \leftarrow T[1]$\;
+            \For{$i \leftarrow 2$ \KwTo $n$}{
+                $F[i] \leftarrow current\_time$ \tcp*{在当前机器空闲的最早时刻安排作业}
+                $current\_time \leftarrow current\_time + T[i]$\;
+            }
+            \Return{$F$}\;
+        \end{algorithm}
+        算法正确性的证明思路：\\
+        采用交换论证法。
+        考虑任意一个最优调度方案$S$和贪心法所得到的调度方案$S^*$。假设最优解$S$没有按照加工时间从小到大排列，那么$S$中必然存在至少一对逆序对，即存在先执行的任务$A$和后执行的任务$B$，满足$t(A) > t(B)$。\\
+        我们将任务$A$和任务$B$在调度中的执行位置互换。假设互换前$A$和$B$中间夹着$k$个其他任务（$k \ge 0$），观察交换前后的变化：
+        对于$A$前面的任务和$B$后面的任务，其完成时间完全不受影响。
+        对于夹在中间的$k$个任务，由于排在它们前面的耗时较长的$A$变成了耗时较短的$B$，这$k$个任务每一个的完成时间都提前了$t(A)-t(B)$。
+        对于$A$和$B$当事双方，通过简单的代数计算可知，它们俩完成时间之和减少了$t(A)-t(B)$。\\
+        因此，这次交换使得所有任务的总完成时间严格减少了$(k+1)(t(A)-t(B)) > 0$。这意味着任何存在逆序对的调度方案都可以通过交换变得更优。由此推导，任意最优解可以通过有限次消除逆序对的交换操作，最终变成完全没有逆序对的贪心解$S^*$，且总时间不会变差。因此贪心策略正确。
+    \item \textbf{Problem 4.13}\\
+        题目的设定非常简单，因为每个作业的加工时间都是1，可以理解为从$n$个任务中选出$d$个任务，免除他们的延期惩罚。那么显然我们要免除惩罚最大的。
+        因此非常容易能想到如下的贪心算法。\\
+        \begin{algorithm}[H]
+            \KwIn{An array $M$ of length $n$ representing penalties, deadline $D$.}
+            \KwOut{Array $F=[f_1,\dots,f_n]$ representing the start time of each job.}
+            \caption{贪心法求解最小总罚款调度问题}
+            \tcp{按照罚款金额从大到小对作业进行排序}
+            Sort the jobs such that $m[1] > m[2] > \dots > m[n]$\;
+            $current\_time \leftarrow 0$\;
+            \For{$i \leftarrow 1$ \KwTo $n$}{
+                $F[i] \leftarrow current\_time$\;
+                $current\_time \leftarrow current\_time + 1$\;
+            }
+            \Return{$F$}\;
+        \end{algorithm}
+        算法的复杂度显然取决于排序算法的复杂度，可以认为是$O(n\log{n})$。
+        
+        算法的正确性证明如下：\\
+        假设贪心法求得的调度不是最优的，即存在一个最优调度方案 $S$，它的总罚款严格小于贪心方案。在最优方案 $S$ 中，必然存在这样一种情况：
+        有一项罚款很高的作业 $B$ 被安排在了截止时间 $D$ 之后（即被延误，支付了罚金 $m(B)$），而同时有一项罚款较低的作业 $A$ 被安排在了截止时间 $D$ 之前（即按时完成，免除了罚金 $m(A)$），且满足 $m(B) > m(A)$。(如果不存这种情况，说明所有罚金最高的 $D$ 个任务都在 $D$ 之前完成了，这就和贪心解完全等价了)。
+        我们可以将方案 $S$ 中作业 $A$ 和作业 $B$ 的加工时间对调。交换后，作业 $B$ 变成了按时完成，免除了 $m(B)$ 的罚金。作业 $A$ 变成了被延误，需要支付 $m(A)$ 的罚金。其他所有作业的位置和完成状态均未改变。我们来计算交换前后总罚款的变化量 $\Delta := \text{新方案罚款} - \text{原方案罚款} = m(A) - m(B)$。
+        因为已知 $m(B) > m(A)$，所以 $\Delta < 0$。这意味着，通过交换 $A$ 和 $B$，我们得到了一个总罚款更少的新调度方案。这与 $S$ 是最优解的假设矛盾。因此，最优调度方案中，安排在 $D$ 之前的作业必然是罚款金额最大的前 $D$ 个作业。
+        贪心算法总是能给出最优解，算法正确。
+    \item \textbf{Problem 4.18}
+        \begin{enumerate}[label=(\arabic*)]
+            \item 当所有广告的效益都相等时，问题就变成了如何最大化广告的数量。那么我们根据课上讲的最小最大延迟问题的思路，应该对截止时间做贪心，这样能给未来留出最大的余量。\\
+                \begin{algorithm}[H]
+                    \KwIn{广告集合 $S=\{1,2,\dots,n\}$，开始时间 $s(i)$，截止时间 $d(i)$ 且已满足 $d(1)\le d(2)\le\dots\le d(n)$}
+                    \KwOut{选中的广告集合 $A$}
+                    \caption{广告活动选择问题（贪心法）}
+                    Initialize $A = \{1\}$ \tcp*{总是贪心地选择第一个（最早结束）的广告}
+                    $last\_finish \leftarrow d(1)$\;
+                    \For{$i \leftarrow 2$ \KwTo $n$}{
+                        \If{$s(i) \ge last\_finish$}{
+                            $A \leftarrow A \cup \{i\}$ \tcp*{若当前广告与已选广告不重叠，则选中}
+                            $last\_finish \leftarrow d(i)$ \tcp*{更新最后结束时间}
+                        }
+                    }
+                    \Return{$A$}\;
+                \end{algorithm}
+                由于题目已经为我们按照结束时间拍好了序，因此时间复杂度只需要$O(n)$就可以完成。\\
+                算法的正确性证明思路是，考虑一个贪心得到的最优解的$S^*$和不同于贪心解法的最优解$S$。对于第一个活动，由于贪心法选择的是结束时间最早的，必然有$S^*_1\le S_1$，也就是可以将非贪心解的第一个活动替换为贪心解的第一个活动，并且不影响后续的活动。
+                接下来对$n=k$试图归纳。假设已经将$S_1,\dots,S_k$替换为了贪心解的$S^*_1,\dots,S^*_k$。接下来我们试图用$S^*_{k+1}$替换$S_{k+1}$，显然由贪心算法，这一步既满足$S^*_k$的限制，也因为$S^*_{k+1}\le S_{k+1}$不影响后续的活动安排。\\
+                因此归纳成立，非贪心解可以经过有限步变成贪心解。故贪心算法正确
+            \item 简单的贪心法似乎不好解决这个问题，我决定用动态规划来做。有如下的递推式：
+                \[\begin{cases}
+                    dp[0] = 0 \\
+                    dp[i] = \max(dp[i-1], \ dp[p(i)] + v(i)), & 1 \le i \le n
+                \end{cases}\]其中$i$表示做不做第$i$个活动，而$p(i)$是结束时间在$i$之前并且距离$i$最近的活动下标。\\
+                \begin{algorithm}[H]
+                    \KwIn{广告集合 $S=\{1,2,\dots,n\}$，开始时间 $s(i)$，截止时间 $d(i)$，效益 $v(i)$。已知截止时间已排序：$d(1) \le d(2) \dots \le d(n)$。}
+                    \KwOut{可以获得的最大总效益}
+                    \caption{动态规划求解带权重的广告选择问题}
+                    \tcp{第一步：预处理计算每个广告的非冲突前驱 $p[i]$}
+                    Initialize array $p[1 \dots n]$ with $0$\;
+                    \For{$i \leftarrow 1$ \KwTo $n$}{
+                        $left \leftarrow 1$\;
+                        $right \leftarrow i - 1$\;
+                        \tcp{利用二分查找，在 $O(\log n)$ 时间内找到最大的 $j$ 满足 $d(j) \le s(i)$}
+                        \While{$left \le right$}{
+                            $mid \leftarrow \lfloor (left + right) / 2 \rfloor$\;
+                            \eIf{$d(mid) \le s(i)$}{
+                                $p[i] \leftarrow mid$\;
+                                $left \leftarrow mid + 1$\;
+                            }{
+                                $right \leftarrow mid - 1$\;
+                            }
+                        }
+                    }
+                    \tcp{动态规划求解，时间复杂度$O(n)$}
+                    Initialize array $dp[0 \dots n]$ with $0$\;
+                    \For{$i \leftarrow 1$ \KwTo $n$}{
+                        $dp[i] \leftarrow \max(dp[i-1], \ v(i) + dp[p[i]])$\;
+                    }
+                    \Return{$dp[n]$}\;
+                \end{algorithm}
+                从注释的分析中，可以比较显然地看出时间复杂度是$O(n\log n)$。
+        \end{enumerate}
+    \item \textbf{Problem 5.2}\\
+        可以构建一个回溯搜索加上分支限界来解决这个问题。其中解向量是四个零件的供应商编号$(x_1,x_2,x_3,x_4)$，其中$x_i\in\{1,2,3\}$，搜索树是满3叉树，
+        搜索策略可以采用带有极小化分支限界的回溯法。代价函数是贪心地选所有供应商提供的零件里重量最小的。\\
+        最坏情况下的时间复杂度是$O(m^n)$，其中$m$是供应商的个数，$n$是需要的零件个数。\\
+        得到的最优解是$(3,1,2,3)$。
+    \item \textbf{Problem 5.5}\\
+        用BFS做回溯搜索时，需要使用队列存每个棋盘位置历史的路径状态而不能只像DFS一样存下标并通过全局的标志位表示冲突了，因此空间复杂度会更高。伪代码如下：\\
+        \begin{algorithm}[H]
+            \KwIn{棋盘大小 $N$ (对于 8 皇后问题，即 $N=8$)}
+            \KwOut{所有合法的皇后的位置排列方案集合 $Solutions$}
+            \caption{基于广度优先搜索求解 $N$ 皇后问题}
+            
+            Initialize empty queue $Q$\;
+            Initialize empty list $Solutions$\;
+            $Q$.enqueue(空数组 $[]$) \tcp*{初始状态：放入一个空路径，表示尚未放置任何皇后}
+            
+            \While{$Q$ is not empty}{
+                $path \leftarrow Q$.dequeue()\;
+                $k \leftarrow \text{length of } path$ \tcp*{获取当前状态已经放置了几行皇后}
+                
+                \eIf{$k == N$}{
+                    $Solutions$.append($path$) \tcp*{若已放置完全部 $N$ 行，说明找到了一个完整合法解}
+                }{
+                    \tcp{尝试在第 $k+1$ 行的每一个列 ($1$ 到 $N$) 放置新皇后}
+                    \For{$col \leftarrow 1$ \KwTo $N$}{
+                        $is\_valid \leftarrow \text{True}$\;
+                        
+                        \tcp{合法性校验：与前面 $k$ 行的皇后进行位置比对}
+                        \For{$row \leftarrow 1$ \KwTo $k$}{
+                            \If{$path[row] == col$ \textbf{or} $|k+1 - row| == |col - path[row]|$}{
+                                $is\_valid \leftarrow \text{False}$ \tcp*{发生同列或同对角线冲突}
+                                \textbf{break}\;
+                            }
+                        }
+                        
+                        \tcp{如果当前位置合法，则生成新状态并压入队尾}
+                        \If{$is\_valid$}{
+                            $new\_path \leftarrow path \cup \{col\}$\;
+                            $Q$.enqueue($new\_path$)\;
+                        }
+                    }
+                }
+            }
+            \Return{$Solutions$}\;
+        \end{algorithm}
+        算法的时间复杂度会达到$O(n!)$。
+    \item \textbf{Problem 5.6}\\
+        这道问题同样可以用搜索来解决。建立一棵高度为$n$的二叉树作为搜索树，其中左子树表示选择根节点，右子树表示不选择根节点。
+        那么解向量就是$(x_1,\dots,x_n)$，其中$x_i\in\{0,1\}$。并且维护一个表示当前和的临时变量$current\_sum$，
+        只要在某一个节点选择了左子树使得这个值超过了$M$，就可以开始进行剪枝，并且把$current\_sum$回溯到上一状态。\\
+        代价函数可以考虑接下来全部选择左子树的和$remain$，如果这个值小于$M-current\_sum$就触发剪枝。\\
+        还可以进行的一个优化是贪心地安排集合中的元素顺序，大的元素更靠近二叉树的根节点，可以尽快触发剪枝。\\
+        \begin{algorithm}[H]
+            \KwIn{集合 $S=\{s_1, s_2, \dots, s_n\}$ (均为正数)，目标和 $M$}
+            \KwOut{所有满足和为 $M$ 的解向量 $X=(x_1, \dots, x_n)$}
+            \caption{子集和问题的回溯搜索算法（双重剪枝优化）}
+            
+            \tcp{优化策略：将集合 S 降序排列，大元素靠近根节点，尽早触发剪枝}
+            Sort $S$ in descending order: $s_1 \ge s_2 \ge \dots \ge s_n$\;
+            $remain \leftarrow \sum_{k=1}^n s_k$ \tcp*{初始时，剩余和为全集之和}
+            Initialize array $x[1\dots n]$ with $0$\;
+            
+            \SetKwFunction{FBacktrack}{Backtrack}
+            \SetKwProg{Fn}{Function}{:}{}
+            \Fn{\FBacktrack{\ensuremath{i,\ current\_sum,\ remain}}}{
+                \If{$current\_sum == M$}{
+                    输出当前解 $X$\;
+                    \Return\;
+                }
+                \If{$i > n$}{
+                    \Return \tcp*{越界返回}
+                }
+                \tcp{准备对第 i 个元素进行决策，将它从后续可用的 remain 中剔除}
+                $remain \leftarrow remain - s_i$\;
+                \tcp{左子树：选择当前元素 s\_i}
+                \If{$current\_sum + s_i \le M$}{
+                    $x_i \leftarrow 1$\;
+                    \FBacktrack{$i+1$, $current\_sum + s_i$, $remain$}\;
+                }
+                \tcp{右子树：不选择当前元素 s\_i}
+                \tcp{代价函数剪枝：如果剩下的全加起来依然大于等于所需缺口，才有必要走右边}
+                \If{$remain \ge M - current\_sum$}{
+                    $x_i \leftarrow 0$\;
+                    \FBacktrack{$i+1$, $current\_sum$, $remain$}\;
+                }
+            }
+            \tcp{主程序开始执行搜索}
+            \FBacktrack{$1$, $0$, $remain$}\;
+        \end{algorithm}
+        算法复杂度仍然要达到$O(2^n)$。
+    \item \textbf{Problem 5.7}\\
+        解向量是$(x_1,\dots,x_n)$，其中$x_i$表示第$i$个人选择哪一件工作。搜索树是一棵排列树。搜索策略可以采用带有极小化分支限界的回溯法，
+        代价函数可以采用剩下的工作中的最小成本之和。\\
+        \begin{algorithm}[H]
+            \KwIn{成本矩阵 $C_{n \times n}$}
+            \KwOut{最小总成本 $min\_cost$ 及对应的最优分配方案 $best\_X$}
+            \caption{分派问题的回溯搜索算法（排列树 + 分支限界）}
+            \tcp{初始化}
+            $min\_cost \leftarrow \infty$\;
+            Initialize array $x[1\dots n]$ and $best\_X[1\dots n]$ with $0$\;
+            Initialize boolean array $visited[1\dots n]$ with $\text{False}$ \tcp*{记录工作是否已被分配}
+            \SetKwFunction{FBound}{Bound}
+            \SetKwProg{Fn}{Function}{:}{}
+            \tcp{计算剩余人员的最小理论成本之和（代价函数）}
+            \Fn{\FBound{$k$, $visited$}}{
+                $est \leftarrow 0$\;
+                \For{$p \leftarrow k$ \KwTo $n$}{
+                    $min\_val \leftarrow \infty$\;
+                    \For{$j \leftarrow 1$ \KwTo $n$}{
+                        \If{\textbf{not} $visited[j]$ \textbf{and} $C[p][j] < min\_val$}{
+                            $min\_val \leftarrow C[p][j]$\;
+                        }
+                    }
+                    $est \leftarrow est + min\_val$\;
+                }
+                \Return $est$\;
+            }
+            \SetKwFunction{FBacktrack}{Backtrack}
+            \Fn{\FBacktrack{$i$, $current\_cost$}}{
+                \tcp{如果已经为所有人分配完工作，更新全局最优解}
+                \If{$i > n$}{
+                    \If{$current\_cost < min\_cost$}{
+                        $min\_cost \leftarrow current\_cost$\;
+                        $best\_X \leftarrow x$\;
+                    }
+                    \Return\;
+                }
+                \For{$j \leftarrow 1$ \KwTo $n$}{
+                    \If{\textbf{not} $visited[j]$}{
+                        $new\_cost \leftarrow current\_cost + C[i][j]$\;
+                        \tcp{临时标记工作 j 已被占用，以便计算代价函数下界}
+                        $visited[j] \leftarrow \text{True}$\;
+                        \If{$new\_cost + \FBound{i+1, visited} < min\_cost$}{
+                            $x[i] \leftarrow j$\;
+                            \FBacktrack{$i+1$, $new\_cost$}\;
+                        }
+                        $visited[j] \leftarrow \text{False}$\;
+                    }
+                }
+            }
+            \FBacktrack{$1$, $0$}\;
+        \end{algorithm}
+        最坏情况下的时间复杂度是$O(n!)$。
+\end{enumerate}
+\end{document}
