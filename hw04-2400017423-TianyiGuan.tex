@@ -1,0 +1,108 @@
+\documentclass{ctexart}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath,amssymb}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage[a4paper,margin=2cm]{geometry}
+\title{\vspace*{-1cm}Algorithm Design and Analysis Homework 4}
+\author{Tianyi Guan 2400017423}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Problem 6.2}\[
+        \begin{aligned}
+            & \min \quad 20\omega_1 + 28\omega_2 + 18\omega_3 \\
+            & \text{s.t.} \quad 
+            \begin{cases}
+                \omega_1 + \omega_2 + \omega_3 = 1000 \\
+                \frac{75\omega_1 + 85\omega_2 + 60\omega_3}{1000} \ge 75 \\
+                \frac{86\omega_1 + 88\omega_2 + 75\omega_3}{1000} \ge 80 \\
+                \omega_1 \le 500 \\
+                \omega_2 \le 600 \\
+                \omega_3 \le 400
+            \end{cases}
+        \end{aligned}
+    \]
+    \item \textbf{Problem 6.4}
+        \begin{enumerate}[label=(\arabic*)]
+            \item ~\begin{figure}[H]
+                \centering
+                \includegraphics[width=0.8\linewidth]{4.4.1.png}
+            \end{figure}
+            如图所示，目标函数最大值为红色直线的截距，在$\begin{cases}
+                x_1=5 \\
+                x_2=2 
+            \end{cases} \text{时取得，最大值为}7$。
+            \item[(3)] ~\begin{figure}[H]
+                \centering
+                \includegraphics[width=0.8\linewidth]{4.4.3.png}
+            \end{figure}
+            如图所示，目标函数最小值为红色直线的截距，在$\begin{cases}
+                x_1=0 \\
+                x_2=1 
+            \end{cases} \text{时取得，最小值为}1$。
+        \end{enumerate}
+    \item \textbf{Problem 6.6}
+        \begin{enumerate}[label=(\arabic*)]
+            \item ~
+                \begin{figure}[H]
+                \centering
+                \includegraphics[width=0.8\linewidth]{4.6.png}
+            \end{figure}
+            如图所示，目标函数最大值为红色直线的截距，在$\begin{cases}
+                x_1=5 \\
+                x_2=\frac{9}{2}
+            \end{cases} \text{时取得，最大值为}\frac{29}{2}$。
+            \item 这个线性规划问题的标准型是\[\begin{aligned}
+                \max \quad 2x_1+x_2\\
+                \text{s.t.} \quad -x_1+2x_2+x_3&=4\\
+                x_1+x_4&=5\\
+                x_1,x_2,x_3,x_4 &\ge 0\\
+            \end{aligned}\]
+            考虑系数矩阵$A=\begin{pmatrix}
+                -1 &2 &1 &0\\
+                1 &0 &0 &1
+            \end{pmatrix}$，从4列中任选2列并要求线性无关，可得所有的基为
+            \[
+                B_{12}=(a_1,a_2),\quad
+                B_{13}=(a_1,a_3),\quad
+                B_{14}=(a_1,a_4),\quad
+                B_{24}=(a_2,a_4),\quad
+                B_{34}=(a_3,a_4).
+            \]
+            其中$(a_2,a_3)$不构成基（两列线性相关）。下面令非基变量为0，求对应基本解：
+            \[
+            \begin{array}{c|c|c|c}
+            \text{基} & (x_1,x_2,x_3,x_4) & \text{是否可行} & z=2x_1+x_2 \\
+            \hline
+            B_{12} & (5,\frac{9}{2},0,0) & \text{可行} & \frac{29}{2} \\
+            B_{13} & (5,0,9,0) & \text{可行} & 10 \\
+            B_{14} & (-4,0,0,9) & \text{不可行} & -8 \\
+            B_{24} & (0,2,0,5) & \text{可行} & 2 \\
+            B_{34} & (0,0,4,5) & \text{可行} & 0
+            \end{array}
+            \]
+            因此可行基为$B_{12},B_{13},B_{24},B_{34}$。对应到原变量$(x_1,x_2)$的可行域顶点分别是
+            \[
+                (5,\tfrac{9}{2}),\ (5,0),\ (0,2),\ (0,0).
+            \]
+            比较目标函数值可得最优解为
+            \[
+                x_1^*=5,\quad x_2^*=\frac{9}{2},\quad z_{\max}=\frac{29}{2}.
+            \]
+        \end{enumerate}
+    \item \textbf{Problem 6.14}\\
+        此问题的对偶问题是\[\begin{aligned}
+            \min \quad &6y_1+5y_2-4y_3\\
+            \text{s.t.} \quad &y_1+y_2+2y_3 &&\ge 3\\
+            &y_1-2y_2+y_3 &&\ge -2\\
+            &-y_1+y_2-3y_3 &&\ge 1\\
+            &-y_1+y_3&&=4\\
+            &y_1\ge 0,\quad y_2\le 0,\quad y_3\ \text{任意}
+        \end{aligned}\]
+\end{enumerate}
+\end{document}
