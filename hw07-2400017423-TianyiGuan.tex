@@ -1,0 +1,36 @@
+\documentclass{ctexart}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath,amssymb}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage[a4paper,margin=2cm]{geometry}
+\title{\vspace*{-1cm}Algorithm Design and Analysis Homework 7}
+\author{Tianyi Guan 2400017423}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Problem 9.5}
+        \begin{enumerate}[label=(\arabic*)]
+            \item 对独立集问题的邻接矩阵除对角线上的每个元素取反，即构建补图，就能转化为团问题。变换时间复杂度为$O(n^2)$。
+            \item 假设原问题是找顶点数不超过$k$的顶点覆盖，只需要在原图上判断不少于$n-k$的独立集，再通过第一问的思路转化为团问题，变换时间复杂度是$O(1)+O(n^2)=O(n^2)$。
+            \item 考虑将子图设定为$n$个顶点依次连接的环，那么这个图上的哈密顿回路问题就转化为了这个子图同构问题。变换时间复杂度可以认为是建立圆环作为子图的$O(n)$开销。
+            \item 设定 $n$ 个 0-1 变量表示各个顶点是否被选入团。设定目标条件为所选顶点数之和不少于给定大小 $D$，并且对原图的每一条非边建立约束，保证其两个端点对应的变量不能同时为 1（即 $x_i + x_j \le 1$），这可以通过遍历每条非边，将非边作为矩阵的一行插入$A$，然后将没有边连接的两个顶点的位置设置成1来实现。由于主要开销是遍历整个邻接矩阵寻找非边以构建约束矩阵 $A$，变换时间复杂度为 $O(n^2)$。
+        \end{enumerate}
+    \item \textbf{Problem 9.10}
+    
+        已知 $\Pi'$ 是 NP 完全问题，根据 NP 完全性的定义，对于任意的问题 $\Pi'' \in \text{NP}$，都有 $\Pi'' \le_p \Pi'$。\\
+        又已知题目给出 $\Pi' \le_p \Pi$，由于\textbf{多项式时间规约具有传递性}，因此对于任意的 $\Pi'' \in \text{NP}$，均有 $\Pi'' \le_p \Pi$。这证明了 $\Pi$ 是 NP难的。\\
+        同时，题目已知条件给定了 $\Pi \in \text{NP}$。由于 $\Pi$ 既是 NP 难的，又属于 NP 问题类，根据定义，$\Pi$ 是NP完全问题。证毕。
+    \item \textbf{Problem 9.15}\\
+        给定模式图到目标图的顶点映射，只需验证模式图中的边在目标图中是否均对应存在，显然可在多项式时间内验证，故子图同构 $\in \text{NP}$。进一步，考虑将模式图设定为 $n$ 个顶点依次连接的环，那么目标图上的哈密顿回路问题就转化为了这个子图同构问题，变换时间复杂度为建立圆环的 $O(n)$ 开销，从而证明其是 NP 难的。综上所述，子图同构是 NP 完全问题。
+    \item \textbf{Problem 9.19}\\
+        \textbf{1. 证明 NP：} 给定候选子集 $V'$ 作为证据，只需遍历图中的剩余节点 $V \setminus V'$，检查其是否至少与 $V'$ 中的一个节点相连。此验证过程的时间复杂度为 $O(|V|+|E|)$，可在多项式时间内完成，因此该问题属于 NP 类。\\
+        \textbf{2. 证明 NP 难：} 对于给定的顶点覆盖实例图 $G=(V,E)$（假设无孤立点）和大小 $k$，我们构造支配集 $G'$：对 $G$ 的每条边 $e=(u,v)$，新增一个顶点 $x_e$ 并与 $u, v$ 相连；设定支配集大小阈值 $K=k$。此结构变换可在 $O(|E|)$ 时间内完成。\\
+        \textbf{等价性：} 原图的顶点覆盖覆盖了所有边，因此必然与所有新增节点 $x_e$ 相邻，自然构成了 $G'$ 的支配集。反之，若 $G'$ 存在大小为 $k$ 的支配集，若其中包含了某个新增节点 $x_e$，我们可以将其无代价替换为其对应的旧端点 $u$ 或 $v$（替换后支配范围更大，不影响合法性）。经过调整后，该支配集仅由原图节点构成，且为了支配所有新增节点 $x_e$，必须覆盖原图的所有边，即为原图的顶点覆盖。\\
+        综上所述，支配集问题是 NP 完全的。
+\end{enumerate}
+
+\end{document}

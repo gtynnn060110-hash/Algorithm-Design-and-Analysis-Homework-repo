@@ -1,0 +1,40 @@
+\documentclass{ctexart}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath,amssymb}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage[a4paper,margin=2cm]{geometry}
+\title{\vspace*{-1cm}Algorithm Design and Analysis Homework 8}
+\author{Tianyi Guan 2400017423}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Problem 10.1}\\该修改后的算法不存在常数近似比。
+        考虑星形图作为反例实例 $I$。设星形图有 1 个中心顶点和 $n$ 个叶子节点，共 $n$ 条边连接中心与各个叶子节点。
+        对于该实例，最优的顶点覆盖显然是仅选取中心顶点，即可覆盖所有的 $n$ 条边，因此最优解的代价 $\text{OPT}(I) = 1$。
+        而在最坏情况下，该修改后的近似算法在任取一条边时，都恰好选取了其叶子节点加入顶点覆盖集。由于选取叶子节点只能覆盖当前这一条边，中心点始终未被覆盖，算法最终会将所有的 $n$ 个叶子节点都加入覆盖集，此时该算法的代价 $A(I) = n$。
+        因此，该算法的近似比 $r_A(I) = \frac{n}{1} = n$。由于 $n$ 可以任意大，表明该算法的近似比会随着图的规模线性增长（$O(n)$），因此不存在常数近似性能。
+    \item \textbf{Problem 10.3}\\
+        考虑对最优解$S$和FF得到的解$S^{'}$，对于$S^{'}$必然有按顺序两两配对后的两个箱子重量之和大于$B$，否则不会开新的箱子。假设最优解用的箱子数为$m$，那么相应的FF解的前$2m$个箱子总重就超过了所有物品总重量。
+        因此有$\text{FF}(I)<2\text{OPT}(I)$。
+    \item \textbf{Problem 10.4}\\
+        考虑NPC问题划分问题，即能不能将一个元素总和为$2S$的集合拆分成两个子集，使得两个子集中元素和恰好等于$S$。
+        如果存在近似比小于$\frac{3}{2}$的近似算法，那么对于如下的装箱问题：物品总重为$2S$，每个箱子总重量不超过$S$。如果最优解为2，那么这个近似算法也会输出一个$<\frac{3}{2}*2$的整数，必然输出2。如果最优解不是2，即不能恰好划分，那么近似算法会输出3以上的值。
+        那么我们就解决了划分问题，只需近似算法输出2就认为可以划分，近似算法输出大于3的值就认为不能划分。因此P=NP了。
+    \item \textbf{Problem 10.5}\\
+        设 MCUT 算法终止时得到的割集边数为 $\text{MCUT}(I) = |E_{cut}|$，非割边数为 $|E_{non}|$。
+        根据算法的终止条件，当算法停止时，图中不再存在满足“非割边多于割边”的顶点。这意味着，对于图中的任意顶点 $u \in V$，它关联的割边数量必然大于或等于非割边数量。
+        设 $d_{cut}(u)$ 为顶点 $u$ 关联的割边数，$d_{non}(u)$ 为顶点 $u$ 关联的非割边数。由于算法已停止，对所有 $u \in V$ 均有 $d_{cut}(u) \ge d_{non}(u)$。
+        将所有顶点的这两个度数分别求和，必然满足不等式：$\sum_{u \in V} d_{cut}(u) \ge \sum_{u \in V} d_{non}(u)$。
+        考察这两项求和公式的实际物理意义：由于每条割边连接两个分属不同集合的顶点，在对所有顶点的割边度数求和时，每条割边被其两个端点各计算了一次，即 $\sum_{u \in V} d_{cut}(u) = 2|E_{cut}|$。
+        同理，每条非割边连接两个同属一个集合的顶点，在求和时也被其两个端点各计算了一次，即 $\sum_{u \in V} d_{non}(u) = 2|E_{non}|$。
+        将求和结果代入不等式，得到 $2|E_{cut}| \ge 2|E_{non}|$，化简为 $|E_{cut}| \ge |E_{non}|$。
+        图的总边数 $|E| = |E_{cut}| + |E_{non}|$。将上述不等式两边同时加上 $|E_{cut}|$，得到 $2|E_{cut}| \ge |E_{cut}| + |E_{non}| = |E|$。即 $2\text{MCUT}(I) \ge |E|$。
+        显然，对于任意图实例 $I$，上帝视角的绝对最优割集边数 $\text{OPT}(I)$ 绝对不可能超过图的总边数，即 $\text{OPT}(I) \le |E|$。
+        综合上述两个不等式，可得 $\text{OPT}(I) \le |E| \le 2\text{MCUT}(I)$。证毕。
+\end{enumerate}
+
+\end{document}
